@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <title>dialog demo</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    a {
+      color: #000;
+      text-decoration: none;
+    }
+
+    .container {
+      margin: 20px auto;
+      width: 450px;
+    }
+
+    .btnList li {
+      display: inline-block;
+      margin-right: 15px;
+      list-style: none;
+    }
+
+    .btnList li button {
+      padding: 3px 5px;
+    }
+
+    .dialog {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+      width: 250px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+
+    .bgd.cover {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #000;
+      opacity: 0.6;
+    }
+
+    .dialog .head {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      background-color: #666;
+      color: #fff;
+    }
+    .head .title {
+      flex: 1;
+      padding: 5px;
+    }
+    .head .close {
+      padding: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .dialog .main {
+      background-color: #ccc;
+      text-align: center;
+    }
+
+    .main .msg {
+      display: inline-block;
+      padding: 15px;
+      color: #666;
+    }
+
+    .main .btn {
+      display: inline-block;
+      margin-bottom: 10px;
+      padding: 2px 5px;
+      color: #fff;
+      background-color: tomato;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <ul class="btnList">
+      <li class="btn1"><button type="submit">打开1</button></li>
+      <li class="btn2"><button type="submit">打开2</button></li>
+      <li class="btn3"><button type="submit">打开3</button></li>
+      <li class="btn4"><button type="submit">打开4</button></li>
+      <li class="btn5"><button type="submit">打开5</button></li>
+      <li><button type="submit">关闭</button></li>
+    </ul>
+  </div>
+  <div class="bgd"></div>
+  <!-- <div class="dialog" style="display: none">
+    <div class="head">
+      <span class="title"></span>
+      <span class="close">x</span>
+    </div>
+    <div class="main">
+      <span class="msg"></span>
+      <div class="btnCt">
+        <a href="#" class="btn close">取消</a>
+        <a href="#" class="btn yes">确认</a>
+      </div>
+    </div>
+  </div> -->
+  <script>
+    var dialog = (function() {
+      function Modal() {
+        this.createDialog()
+        this.bindEvent()
+      }
+
+      Modal.prototype = {
+        dialogInfo: {
+          title: '',
+          message: '',
+          isShowCloseBtn: false,
+          isShowYesBtn: true
+        },
+        open: function(info) {
+          
+          this.setInfo(info)
+          console.log(this.info)
+          this.setDialog()
+          this.showDialog()
+        },
+        close: function() {
+          this.hideDialog()
+        },
+        setInfo: function(info) {
+          if ("object" === typeof info) {
+            this.info = $.extend({}, this.dialogInfo, info)
+          } else if ("string" === typeof info) {
+            this.info = $.extend({}, this.dialogInfo, {message: info})
+          }
+        },
+        setDialog: function() {
+          if (!this.info.title) {
+            this.$dialog.find('.head').hide()
+          } else {
+            this.$dialog.find('.head').show()
+          }
+
+          if (this.info.isShowCloseBtn) {
+            this.$dialog.find('.btn.close').show()
+          } else {
+            console.log(this)
+            this.$dialog.find('.btn.close').hide()
+          }
+
+          if (this.info.isShowYesBtn) {
+            this.$dialog.find('.btn.yes').show()
+          } else {
+            this.$dialog.find('.btn.yes').hide()
+          }
+
+          this.$dialog.find('.title').text(this.info.title)
+          this.$dialog.find('.msg').html(this.info.message)
+        },
+        createDialog: function() {
+          var tpl = `<div class="dialog" style="display: none">
+                      <div class="head">
+                        <span class="title"></span>
+                        <span class="close">x</span>
+                      </div>
+                      <div class="main">
+                        <span class="msg"></span>
+                        <div class="btnCt">
+                          <a href="#" class="btn close">取消</a>
+                          <a href="#" class="btn yes">确认</a>
+                        </div>
+                      </div>
+                    </div>`
+          $('body').append($(tpl))
+          this.$dialog = $('.dialog') 
+        },
+
+        showDialog: function() {
+          this.$dialog.css('display', 'block')
+          $('.bgd').addClass('cover')
+        },
+        hideDialog: function() {
+          this.$dialog.css('display', 'none')
+          $('.bgd').removeClass('cover')
+        },
+        bindEvent: function() {
+          var _this = this
+          this.$dialog.find('.btnCt .close').on('click', function() {
+            _this.close()
+          })
+
+          this.$dialog.find('.btnCt .yes').on('click', function() {
+            alert('yes')
+            _this.close()
+          })
+
+          this.$dialog.find('.head .close').on('click', function() {
+            _this.close()
+          })
+        }
+      }
+
+      return new Modal()
+    })()
+
+    $('.btn1').on('click', function() {
+      console.log("click...")
+      dialog.open("by kofechen")
+    })
+
+    $('.btn2').on('click', function() {
+      dialog.open('<a href="https://cn.bing.com">bing 搜索</a>')
+    })
+
+    $('.btn3').on('click', function() {
+      dialog.open({title: "欢迎来到饥人谷", message: "加油 kofe", isShowCloseBtn: false})
+    })
+
+    $('.btn4').on('click', function() {
+      dialog.open({
+        title: "欢迎来到饥人谷",
+        message: '<ul> <li>1</li> <li>2</li> <li>3</li> </ul>',
+        isShowCloseBtn: true,
+        isShowYesBtn: true
+      })
+    })
+
+    $('.btn5').on('click', function() {
+      dialog.open({
+        title: "欢迎来到饥人谷",
+        message: "hello",
+        isShowCloseBtn: false,
+        isShowYesBtn: false
+      })
+    })
+  </script>
+</body>
+</html>
